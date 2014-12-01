@@ -59,46 +59,65 @@ RestAnalytics.prototype.middleware = function() {
  * @param  {type} req a request object.
  * @return {type}     json object with info related to the route accessed by this request.
  */
-RestAnalytics.prototype.routeData = function(routeInfo) {
-    var id = routeInfo.id();
+RestAnalytics.prototype.routeData = function(info) {
+    var method = info.method.toLowerCase();
+    var data = this._data[info.url];
+    if(data === undefined) data = this._data[info.url] = {
+    };
 
-    if(this._data[id] === undefined) this._data[id] = {
+    if(data[method] === undefined) data[method] = {
         count: 0
     };
 
-    return this._data[id];
+    return data[method];
 };
 
 function timerData(id) {
     return {
         min: t.timers[id].min(),
         max: t.timers[id].max(),
-        mean: t.timers[id].mean()
+        avg: t.timers[id].mean()
     };
 }
 
 RestAnalytics.prototype.analytics = function(method, path) {
-    var id;
-    method = method.toLowerCase();
+    // if path is not defined, then consider method argument as the path
+    // and return analytics for all methods related to this path
+    if(path === undefined) {
+        path = method;
+        method = undefined;
+    }
+
+    // convert method to lower case for normalized access
+    if(method !== undefined) method = method.toLowerCase();
 
     if(path === undefined) {
-        id = method;
-    } else id = method + " " + path;
-
-    if(id === undefined) {
         var results = {};
         for(var i in this._data) {
-            results[i] = this.analytics(i);
+            results[i] = {};
+
+            for(var j in this._data[i]) {
+                results[i][j] = this.analytics(j, i);
+            }
         }
 
         return results;
     } else {
-        var result = {
-            count: this._data[id].count
-        };
+        var result = {};
 
-        if(t.timers[id] !== undefined) {
-            result.time = timerData(id);
+        if(method === undefined) {
+            for(var m in this_data[path]) {
+                result[m] = this.analytics(m, path);
+            }
+        } else {
+            var data = this._data[path][method];
+
+            var id = method.toLowerCase() + " " + path;
+            result.count = data.count;
+
+            if(t.timers[id] !== undefined) {
+                result.time = timerData(id);
+            }
         }
 
         return result;

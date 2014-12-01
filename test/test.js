@@ -28,7 +28,7 @@ describe('GET /user', function() {
         supertest(data.app)
         .get('/user')
         .end(function(err, res) {
-            assert.equal(data.analytics.analytics('GET /user').count, 1);
+            assert.equal(data.analytics.analytics('GET', '/user').count, 1);
             done();
         });
 
@@ -45,7 +45,7 @@ describe('GET /user', function() {
             supertest(data.app)
             .get('/user')
             .end(function(err, res) {
-                assert.equal(data.analytics.analytics('GET /user').count, 2);
+                assert.equal(data.analytics.analytics('GET', '/user').count, 2);
                 done();
             });
         });
