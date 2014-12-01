@@ -53,3 +53,21 @@ describe('GET /user', function() {
 
     });
 });
+
+describe('GET /user', function() {
+    it('should be able to get data providing method and path in different parameteres', function(done) {
+        var data = appWithAnalytics();
+        supertest(data.app)
+        .get('/user')
+        .end(function(err, res) {
+            supertest(data.app)
+            .get('/user')
+            .end(function(err, res) {
+                assert.equal(data.analytics.analytics('GET',  '/user').count, 2);
+                done();
+            });
+        });
+
+
+    });
+});

@@ -77,12 +77,18 @@ function timerData(id) {
     };
 }
 
-RestAnalytics.prototype.analytics = function(id) {
+RestAnalytics.prototype.analytics = function(method, path) {
+    var id;
+    method = method.toLowerCase();
+
+    if(path === undefined) {
+        id = method;
+    } else id = method + " " + path;
+
     if(id === undefined) {
         var results = {};
         for(var i in this._data) {
             results[i] = this.analytics(i);
-
         }
 
         return results;
