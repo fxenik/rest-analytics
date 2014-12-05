@@ -1,6 +1,6 @@
 {
   "name": "rest-analytics",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Module that provides analytics for REST APIs.",
   "main": "index.js",
   "scripts": {

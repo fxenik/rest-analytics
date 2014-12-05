@@ -1,5 +1,7 @@
+var util = require('util');
 var t = require('exectimer');
-var RouteInfo = require('./lib/routeInfo.js');
+var RouteInfo = require('./lib/route-info.js');
+var RouteUtils = require('./lib/route-utils.js');
 
 /**
  * RestAnalytics - This will hold analytics data for routes that use it's
@@ -13,6 +15,9 @@ function RestAnalytics(options) {
     this._data = [];
 }
 
+// RestAnalytics will emit events on new calls.
+var EventEmitter = require('events').EventEmitter;
+util.inherits(RestAnalytics, EventEmitter);
 
 /**
  * RestAnalytics.prototype.middleware - description
@@ -28,25 +33,29 @@ RestAnalytics.prototype.middleware = function() {
     return function(req, res, next) {
         var tick = new t.Tick(req.url);
         tick.start();
+        var timestamp = new Date().getTime();
+
+        var requestData = RouteUtils.requestJson(req);
 
         var routeInfo = new RouteInfo(req);
         var info = self.routeData(routeInfo);
         info.count++;
 
-        // This will run after some data is sent as a response
-        var oldSend = res.send;
-        res.send = function(status, body) {
-            res.send = oldSend;
-            res.send.apply(this, arguments);
-        };
-
-        // This will run when the responses ends. It is the proper time to see the response status
-        var oldEnd = res.end;
-        res.end = function(chunk, encoding) {
-            res.end = oldEnd;
+        res.on('finish', function() {
             tick.stop();
-            res.end.apply(this, arguments);
-        };
+            var responseData = RouteUtils.responseJson(res);
+            var diff = tick.getDiff();
+
+            // get duration in ms
+            var duration = (diff === 0) ? 0 : diff/1000000;
+
+            self.emit('call', {
+                request: requestData,
+                response: responseData,
+                timestamp: timestamp,
+                duration: duration
+            });
+        });
 
         next();
     };
