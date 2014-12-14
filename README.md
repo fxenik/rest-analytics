@@ -85,3 +85,63 @@ console.log(data);
 //   }
 // }
 ```
+
+## Events
+
+### call
+
+Α `'call'` event will be emitted when a request is completed (after the response is sent). It can be used to integrate collected data with other analytics systems like [Elasticsearch](http://www.elasticsearch.org) or [StatsD](https://github.com/etsy/statsd/).
+
+ The payload of the event will contain information about this specific request:
+
+```javascript
+var express = require('express');
+var RestAnalytics = require('rest-analytics');
+
+var app = express();
+var analytics = new RestAnalytics();
+data.analytics.on('call', function(payload) {
+    console.log(payload);
+});
+
+app.use(analytics.middleware());
+
+```
+
+A payload example json is:
+
+| Tables        | Are           | Cool |
+|---------------|---------------|----------|
+|request|a|b|
+|response|a|b|
+
+
+```javascript
+{
+    "request": {
+        "path": "/user",
+        "ip": "127.0.0.1",
+        "method": "GET",
+        "headers": [
+            {
+                "key": "header",
+                "value": "header value"
+            }
+        ],
+        "query": {},
+        "parameters": []
+    },
+    "response": {
+        "status": 200,
+        "headers": [
+            {
+                "key": "header",
+                "value": "header value"
+            }
+        ]
+    },
+    "timestamp": 1418557961891,     // timestamp of call (in ms)
+    "duration": 0.40668             // duration of the call (in ms)
+}
+
+```

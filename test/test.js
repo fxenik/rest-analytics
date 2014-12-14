@@ -31,12 +31,8 @@ describe('GET /user', function() {
             assert.equal(data.analytics.analytics('GET', '/user').count, 1);
             done();
         });
-
-
     });
-});
 
-describe('GET /user', function() {
     it('should increase route count to 2', function(done) {
         var data = appWithAnalytics();
         supertest(data.app)
@@ -52,9 +48,7 @@ describe('GET /user', function() {
 
 
     });
-});
 
-describe('GET /user', function() {
     it('should be able to get data providing method and path in different parameteres', function(done) {
         var data = appWithAnalytics();
         supertest(data.app)
@@ -67,7 +61,19 @@ describe('GET /user', function() {
                 done();
             });
         });
+    });
 
+    it('should emit a call event after a REST call', function(done) {
+        var data = appWithAnalytics();
+        data.analytics.on('call', function(message) {
+            console.log(JSON.stringify(message, null, 2));
+            done();
+        });
 
+        supertest(data.app)
+        .get('/user')
+        .end(function(err, res){
+            if (err) throw err;
+        });
     });
 });
