@@ -110,12 +110,6 @@ app.use(analytics.middleware());
 
 A payload example json is:
 
-| Tables        | Are           | Cool |
-|---------------|---------------|----------|
-|request|a|b|
-|response|a|b|
-
-
 ```javascript
 {
     "request": {
